@@ -120,4 +120,18 @@ ruled on by a third pass.
 
 *ICE-EM Mathematics* is © Cambridge University Press / the University of
 Melbourne. Nothing from the books themselves is reproduced or redistributed here.
-No licence is granted on the contents of this repository.
+
+## Licence
+
+Split deliberately, because the two halves of this repo are not the same thing.
+
+**The code is MIT.** `src/app_shell.html`, `src/build.py` and `src/sync.sh` —
+take them, build your own question bank over your own content.
+
+**The question content is not licensed.** `src/questions.json`, `src/extra.json`
+and `src/working.json`, and the generated files that embed them (`index.html`,
+`maths-question-bank.html`, `working-yr*.js`) — all rights reserved, for the
+provenance reasons above. Those generated files are MIT only as to the app code
+they carry.
+
+Full text and scope in [LICENSE](LICENSE).
