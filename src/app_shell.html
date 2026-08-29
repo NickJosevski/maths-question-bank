@@ -1,0 +1,1346 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maths Question Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+
+<style>
+/* ─────────────────────────────────────────────────────────────────────
+   Palette carried over from paper-base.css so the app reads as the
+   screen sibling of the printed papers. Light palette on bare :root;
+   dark redefined twice (media query guarded against an explicit light
+   choice, then the [data-theme] stamp) so all three viewer states work.
+   ───────────────────────────────────────────────────────────────────── */
+:root {
+  --paper: #fcfcfd;
+  --ground: #eef1f5;
+  --ink: #16202b;
+  --ink-soft: #5b6773;
+  --ink-faint: #8a95a1;
+  --rule: #c9d2dc;
+  --rule-soft: #e4e9ef;
+  --accent: #2d4a7c;
+  --accent-ink: #ffffff;
+  --accent-wash: #e9eff8;
+  --ok: #3f6b52;
+  --ok-wash: #e8f0ea;
+  --miss: #9c4a3f;
+  --miss-wash: #f6eae7;
+  --part: #8a6d2f;
+  --part-wash: #f5efe2;
+  --shadow: 0 1px 2px rgba(22,32,43,.06), 0 8px 24px -12px rgba(22,32,43,.14);
+
+  --serif: "Spectral", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --s1: .25rem; --s2: .5rem; --s3: .75rem; --s4: 1rem;
+  --s5: 1.5rem; --s6: 2rem; --s7: 3rem;
+  --measure: 66ch;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1a222c;
+    --ground: #0f151d;
+    --ink: #e3e9f0;
+    --ink-soft: #9daab8;
+    --ink-faint: #6d7a88;
+    --rule: #33414f;
+    --rule-soft: #232d38;
+    --accent: #8bafe2;
+    --accent-ink: #101720;
+    --accent-wash: #1d2a3c;
+    --ok: #74a889;
+    --ok-wash: #1b2a22;
+    --miss: #d28e7e;
+    --miss-wash: #2d1f1c;
+    --part: #c6a662;
+    --part-wash: #2a2418;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1a222c;
+  --ground: #0f151d;
+  --ink: #e3e9f0;
+  --ink-soft: #9daab8;
+  --ink-faint: #6d7a88;
+  --rule: #33414f;
+  --rule-soft: #232d38;
+  --accent: #8bafe2;
+  --accent-ink: #101720;
+  --accent-wash: #1d2a3c;
+  --ok: #74a889;
+  --ok-wash: #1b2a22;
+  --miss: #d28e7e;
+  --miss-wash: #2d1f1c;
+  --part: #c6a662;
+  --part-wash: #2a2418;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+/* Components below set display:flex, which is an author rule and therefore beats
+   the UA stylesheet's [hidden] { display: none }. Without this, setting .hidden
+   on a flex component silently does nothing. */
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ── chrome ─────────────────────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  display: flex; flex-direction: column;
+}
+.topbar-in {
+  width: 100%; max-width: 62rem; margin: 0 auto;
+  padding: var(--s3) var(--s4) 0;
+  display: flex; align-items: baseline; gap: var(--s4); flex-wrap: wrap;
+}
+.brand {
+  font-family: var(--serif); font-size: 1.05rem; font-weight: 600;
+  letter-spacing: -.01em; margin: 0;
+}
+.brand span { color: var(--accent); }
+.brand-sub {
+  font-size: .72rem; color: var(--ink-faint); letter-spacing: .04em;
+  text-transform: uppercase; margin: 0;
+}
+.modes {
+  width: 100%; max-width: 62rem; margin: 0 auto;
+  padding: var(--s3) var(--s4) 0;
+  display: flex; gap: var(--s1); overflow-x: auto;
+}
+.mode {
+  appearance: none; background: none; border: 0;
+  border-bottom: 2px solid transparent;
+  font-family: var(--sans); font-size: .86rem; font-weight: 500;
+  color: var(--ink-soft); padding: var(--s2) var(--s3) var(--s3);
+  cursor: pointer; white-space: nowrap;
+}
+.mode:hover { color: var(--ink); }
+.mode[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+main {
+  width: 100%; max-width: 62rem; margin: 0 auto;
+  padding: var(--s5) var(--s4) var(--s7);
+}
+.panel[hidden] { display: none; }
+
+/* ── setup forms ────────────────────────────────────────────────────── */
+.setup {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: var(--s5); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: var(--s5);
+}
+.setup h2 {
+  font-family: var(--serif); font-size: 1.35rem; font-weight: 600;
+  margin: 0; letter-spacing: -.015em; text-wrap: balance;
+}
+.setup p.lede { margin: calc(var(--s2) * -1) 0 0; color: var(--ink-soft); font-size: .92rem; max-width: 52ch; }
+.field { display: flex; flex-direction: column; gap: var(--s2); }
+.field > label, .flabel {
+  font-size: .7rem; font-weight: 600; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.chips { display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip {
+  appearance: none; cursor: pointer;
+  font-family: var(--sans); font-size: .84rem; font-weight: 500;
+  background: var(--paper); color: var(--ink-soft);
+  border: 1px solid var(--rule); border-radius: 100px;
+  padding: .32rem .78rem;
+}
+.chip:hover { border-color: var(--accent); color: var(--ink); }
+.chip[aria-pressed="true"] {
+  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
+}
+select, input[type="number"] {
+  font-family: var(--sans); font-size: .9rem; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 2px;
+  padding: .42rem .6rem; max-width: 22rem;
+}
+.btn {
+  appearance: none; cursor: pointer;
+  font-family: var(--sans); font-size: .9rem; font-weight: 600;
+  background: var(--accent); color: var(--accent-ink);
+  border: 1px solid var(--accent); border-radius: 2px;
+  padding: .55rem 1.1rem;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; filter: none; }
+.btn-quiet {
+  background: var(--paper); color: var(--ink-soft); border-color: var(--rule);
+}
+.btn-quiet:hover { color: var(--ink); border-color: var(--accent); filter: none; }
+.btn-row { display: flex; gap: var(--s2); flex-wrap: wrap; align-items: center; }
+
+/* ── the question card: the printed .q grid, on screen ──────────────── */
+.qcard {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.qhead {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4); border-bottom: 1px solid var(--rule-soft);
+  font-size: .74rem; color: var(--ink-faint);
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.qhead .sep { color: var(--rule); }
+.qhead .tier { margin-left: auto; }
+.tier-dot {
+  display: inline-block; width: .5rem; height: .5rem; border-radius: 100px;
+  margin-right: .35rem; vertical-align: middle; background: var(--ink-faint);
+}
+.tier-easy .tier-dot { background: var(--ok); }
+.tier-medium .tier-dot { background: var(--accent); }
+.tier-hard .tier-dot { background: var(--part); }
+.tier-challenge .tier-dot { background: var(--miss); }
+
+.qbody {
+  display: grid; grid-template-columns: 2.6rem 1fr 3rem;
+  gap: 0 var(--s3); padding: var(--s5) var(--s4);
+}
+.qno {
+  font-family: var(--serif); font-weight: 600; font-size: 1rem;
+  color: var(--accent); padding-top: .1rem;
+}
+.qtext {
+  font-family: var(--serif); font-size: 1.06rem; line-height: 1.62;
+  max-width: var(--measure);
+}
+.qtext > p { margin: 0; }
+.marks {
+  font-family: var(--mono); font-size: .78rem; color: var(--ink-faint);
+  text-align: right; font-variant-numeric: tabular-nums; padding-top: .2rem;
+}
+ol.parts {
+  list-style: none; margin: var(--s4) 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: var(--s3);
+  counter-reset: part;
+}
+ol.parts.inline { flex-direction: row; flex-wrap: wrap; gap: var(--s3) var(--s6); }
+/* NB: the li must NOT be a flex container. Flex promotes each bare text node
+   and inline tag to a separate flex item, laying sentences out as side-by-side
+   columns. Absolutely position the marker instead. */
+ol.parts > li {
+  counter-increment: part; position: relative; padding-left: 1.7rem;
+  font-family: var(--serif); font-size: 1.04rem; line-height: 1.6;
+  max-width: var(--measure);
+}
+ol.parts > li::before {
+  content: counter(part, lower-alpha) ")";
+  position: absolute; left: 0; top: 0;
+  font-family: var(--sans); font-size: .82rem; color: var(--ink-faint);
+  padding-top: .16rem;
+}
+.paper-note {
+  margin: var(--s5) var(--s4) 0; padding: var(--s3) var(--s4);
+  border-left: 2px solid var(--rule); background: var(--rule-soft);
+  font-size: .84rem; color: var(--ink-soft);
+}
+
+/* stacked fractions, identical to the print stylesheet */
+.frac {
+  display: inline-flex; flex-direction: column; text-align: center;
+  vertical-align: -0.48em; margin: 0 .14em; font-size: .92em; line-height: 1.18;
+}
+.frac > .num { border-bottom: 1px solid currentColor; padding: 0 .28em; }
+.frac > .den { padding: 0 .28em; }
+
+/* ── carried over for the two earlier Year 7 test papers, whose questions
+      come through as the original hand-authored HTML: answer boxes, tall
+      brackets, data tables and "here is some wrong working" blocks ──────── */
+.expr { white-space: nowrap; }
+.boxq {
+  display: inline-block; width: 1.35em; height: 1.15em;
+  border: 1.5px solid var(--ink); vertical-align: -.2em; margin: 0 .12em;
+}
+.tall { font-size: 1.7em; line-height: 0; vertical-align: -.3em; font-weight: 300; }
+.qtable-wrap { overflow-x: auto; margin: var(--s3) 0; }
+table.qtable {
+  border-collapse: collapse; font-variant-numeric: tabular-nums;
+  font-family: var(--sans); font-size: .86rem;
+}
+table.qtable th, table.qtable td {
+  border: 1px solid var(--rule); padding: .26rem .66rem;
+  text-align: center; min-width: 2.4rem;
+}
+table.qtable th { background: var(--rule-soft); font-weight: 600; }
+table.qtable td.blank { height: 1.6rem; }
+.table-set { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); }
+.table-unit { display: flex; flex-direction: column; gap: .3rem; }
+.rule-line { margin: 0; font-family: var(--sans); font-size: .86rem; }
+.given-work {
+  display: inline-block; font-family: var(--sans); font-size: .84rem;
+  background: var(--rule-soft); border-left: 2px solid var(--ink-soft);
+  padding: .28rem .55rem; margin: .1rem 0;
+}
+/* provenance badge for questions that came from one of those papers */
+.srcbadge {
+  font-family: var(--sans); font-size: .64rem; font-weight: 600;
+  letter-spacing: .07em; text-transform: uppercase;
+  background: var(--accent-wash); color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 100px;
+  padding: .05rem .5rem; white-space: nowrap;
+}
+
+/* ── answer ─────────────────────────────────────────────────────────── */
+.answer {
+  border-top: 1px solid var(--rule);
+  background: var(--accent-wash);
+  padding: var(--s4) var(--s4) var(--s5);
+}
+.answer h3 {
+  font-size: .7rem; font-weight: 600; letter-spacing: .09em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 var(--s3);
+}
+.atext {
+  font-family: var(--serif); font-size: 1rem; line-height: 1.68;
+  max-width: var(--measure);
+}
+
+/* ── the working-out chain ──────────────────────────────────────────────
+      A derivation is a sequence, so it reads as one column of lines down a
+      rule, each line paired with the reason it happened. Expression left,
+      reason right; they stack on a narrow screen. */
+.wo-toggle {
+  appearance: none; cursor: pointer; margin-top: var(--s4);
+  font-family: var(--sans); font-size: .82rem; font-weight: 600;
+  background: transparent; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 2px;
+  padding: .35rem .8rem;
+}
+.wo-toggle:hover { background: var(--paper); }
+.working-out {
+  margin-top: var(--s4); padding-left: var(--s4);
+  border-left: 2px solid var(--rule);
+  display: flex; flex-direction: column; gap: var(--s3);
+}
+.wo-part {
+  font-family: var(--sans); font-size: .68rem; font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--ink-faint);
+  margin-top: var(--s2);
+}
+.wo-part:first-child { margin-top: 0; }
+.wo-step {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
+  gap: var(--s1) var(--s4); align-items: baseline;
+}
+.wo-expr {
+  font-family: var(--serif); font-size: 1.02rem; line-height: 1.6;
+  min-width: 0; overflow-wrap: break-word;
+}
+.wo-why {
+  font-family: var(--sans); font-size: .8rem; line-height: 1.45;
+  color: var(--ink-soft); min-width: 0;
+}
+.wo-why::before { content: "\2190\00a0"; color: var(--ink-faint); }
+.wo-problem {
+  font-family: var(--sans); font-size: .82rem; color: var(--miss);
+  background: var(--miss-wash); border-left: 2px solid var(--miss);
+  padding: var(--s2) var(--s3); margin-top: var(--s3);
+}
+@media (max-width: 44rem) {
+  .wo-step { grid-template-columns: 1fr; }
+  .wo-why::before { content: ""; }
+  .wo-why { padding-left: var(--s3); border-left: 1px solid var(--rule-soft); }
+}
+
+/* ── action bar ─────────────────────────────────────────────────────── */
+.actions {
+  position: sticky; bottom: 0; z-index: 10;
+  margin-top: var(--s4);
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: var(--s3) var(--s4);
+  display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+.actions .spacer { flex: 1 1 auto; }
+.progress {
+  font-family: var(--mono); font-size: .78rem; color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.btn-ok { background: var(--ok-wash); color: var(--ok); border-color: var(--ok); }
+.btn-part { background: var(--part-wash); color: var(--part); border-color: var(--part); }
+.btn-miss { background: var(--miss-wash); color: var(--miss); border-color: var(--miss); }
+.btn-ok:hover, .btn-part:hover, .btn-miss:hover { filter: brightness(.97); }
+.kbd {
+  font-family: var(--mono); font-size: .68rem; color: var(--ink-faint);
+  border: 1px solid var(--rule); border-radius: 2px; padding: 0 .28rem;
+  margin-left: .35rem;
+}
+
+/* ── stats table ────────────────────────────────────────────────────── */
+.tablewrap { overflow-x: auto; }
+table.stats {
+  width: 100%; border-collapse: collapse;
+  font-size: .88rem; font-variant-numeric: tabular-nums;
+}
+table.stats th, table.stats td {
+  text-align: left; padding: .5rem var(--s3);
+  border-bottom: 1px solid var(--rule-soft);
+}
+table.stats th {
+  font-size: .68rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-faint); font-weight: 600;
+  border-bottom: 1px solid var(--rule);
+}
+table.stats td.num, table.stats th.num { text-align: right; font-family: var(--mono); }
+table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
+.bar {
+  display: inline-block; height: .42rem; border-radius: 100px;
+  background: var(--ok); vertical-align: middle; min-width: 2px;
+}
+.bar-track {
+  display: inline-block; width: 5rem; height: .42rem; border-radius: 100px;
+  background: var(--rule-soft); vertical-align: middle; overflow: hidden;
+}
+.bar-track .bar { display: block; }
+
+/* ── exam ───────────────────────────────────────────────────────────── */
+.exambar {
+  position: sticky; top: 5.6rem; z-index: 15;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: var(--s3) var(--s4); margin-bottom: var(--s4);
+  display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap;
+  box-shadow: var(--shadow);
+}
+.timer {
+  font-family: var(--mono); font-size: 1.35rem; font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+}
+.timer.over { color: var(--miss); }
+.exam-meta { font-size: .8rem; color: var(--ink-soft); }
+.examlist { display: flex; flex-direction: column; gap: var(--s4); }
+.score-hero {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: var(--s6) var(--s5); box-shadow: var(--shadow); text-align: center;
+}
+.score-big {
+  font-family: var(--mono); font-size: 3rem; font-weight: 500;
+  font-variant-numeric: tabular-nums; letter-spacing: -.03em; line-height: 1;
+}
+.score-sub { color: var(--ink-soft); font-size: .9rem; margin-top: var(--s2); }
+
+/* compact stand-in shown once a run has started, so the picker stops
+   eating the top of the screen */
+.resume {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: var(--s3) var(--s4); margin-bottom: var(--s4);
+  display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap;
+  font-size: .88rem;
+}
+.resume .what { font-family: var(--serif); font-size: 1rem; }
+.resume .spacer { flex: 1 1 auto; }
+
+.empty {
+  background: var(--paper); border: 1px dashed var(--rule); border-radius: 3px;
+  padding: var(--s6); text-align: center; color: var(--ink-soft);
+}
+.empty strong { color: var(--ink); font-family: var(--serif); font-size: 1.05rem; }
+.stack { display: flex; flex-direction: column; gap: var(--s4); }
+.row-wrap { display: flex; gap: var(--s5); flex-wrap: wrap; }
+.card {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 3px;
+  padding: var(--s5); box-shadow: var(--shadow);
+}
+.card h2 {
+  font-family: var(--serif); font-size: 1.2rem; font-weight: 600;
+  margin: 0 0 var(--s4); letter-spacing: -.015em;
+}
+.hint { font-size: .8rem; color: var(--ink-faint); }
+
+@media (max-width: 34rem) {
+  .qbody { grid-template-columns: 1.9rem 1fr; }
+  .marks { grid-column: 2; text-align: left; padding-top: var(--s3); }
+  .qtext, ol.parts > li { font-size: 1rem; }
+  main { padding: var(--s4) var(--s3) var(--s7); }
+  .exambar { top: 5.4rem; }
+}
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <h1 class="brand">Maths <span>Question Bank</span></h1>
+    <p class="brand-sub">ICE-EM Years 7&ndash;10 &middot; <span id="qcount"></span> questions</p>
+  </div>
+  <nav class="modes" role="tablist" aria-label="Modes">
+    <button class="mode" role="tab" id="tab-practice" aria-selected="true">Practice</button>
+    <button class="mode" role="tab" id="tab-drill" aria-selected="false">Mixed drill</button>
+    <button class="mode" role="tab" id="tab-weak" aria-selected="false">Weak spots</button>
+    <button class="mode" role="tab" id="tab-exam" aria-selected="false">Exam</button>
+  </nav>
+</header>
+
+<main>
+  <section class="panel" id="p-practice"></section>
+  <section class="panel" id="p-drill" hidden></section>
+  <section class="panel" id="p-weak" hidden></section>
+  <section class="panel" id="p-exam" hidden></section>
+</main>
+
+<script type="application/json" id="bank">__BANK__</script>
+<script type="application/json" id="workidx">__WORKIDX__</script>
+<script type="application/json" id="work">__WORK__</script>
+<script>
+(function () {
+  "use strict";
+  const BANK = JSON.parse(document.getElementById("bank").textContent);
+  const Q = BANK.questions, CH = BANK.chapters;
+
+  /* Step-by-step working. Two build variants come from this one shell so they
+     cannot drift apart:
+       inline — every chain is in #work, LAZY is false, nothing to fetch;
+       lazy   — #work starts empty and a per-year chunk is pulled in on first
+                use, keeping the initial file about a third of the size.
+     WORKIDX (id -> step count) is always inline and tiny, so the app knows
+     which questions have a chain before any chunk has loaded.
+     Chunks are injected as <script> tags, NOT fetched: a fetch() from a
+     file:// page is blocked by CORS, which would break the main use case of
+     opening this file straight off a device. */
+  const LAZY = __LAZY__;
+  const WORKIDX = JSON.parse(document.getElementById("workidx").textContent);
+  const WORK = JSON.parse(document.getElementById("work").textContent);
+  const workState = {};          // year -> Promise
+
+  function loadWork(year) {
+    if (workState[year]) return workState[year];
+    workState[year] = new Promise((resolve, reject) => {
+      const sc = document.createElement("script");
+      sc.src = "working-yr" + year + ".js";
+      sc.onload = () => {
+        Object.assign(WORK, window.__mqbWork || {});
+        resolve(true);
+      };
+      sc.onerror = () => reject(new Error("working-yr" + year + ".js"));
+      document.head.appendChild(sc);
+    });
+    return workState[year];
+  }
+  const KEY = "mathsqb.v1";
+  const YEARS = ["7", "8", "9", "10"];
+  const TIERS = ["easy", "medium", "hard", "challenge"];
+
+  document.getElementById("qcount").textContent = Q.length.toLocaleString();
+
+  /* ── state ────────────────────────────────────────────────────────
+     localStorage can be empty (private window, cleared data) and the
+     accessor itself can throw (thumbnailing, blocked site data), so every
+     read and write is guarded and the app works with no stored value. */
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return { hist: {}, exams: [] };
+      const p = JSON.parse(raw);
+      return { hist: p.hist || {}, exams: p.exams || [] };
+    } catch (e) { return { hist: {}, exams: [] }; }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  let S = load();
+
+  const byId = {};
+  Q.forEach(q => { byId[q.id] = q; });
+
+  function record(id, result) {           // "ok" | "part" | "miss"
+    const h = S.hist[id] || { n: 0, ok: 0, miss: 0, last: 0, lastOk: false };
+    h.n += 1;
+    h.last = Date.now();
+    if (result === "ok") { h.ok += 1; h.lastOk = true; }
+    else { h.miss += 1; h.lastOk = false; }   // "part" resurfaces like a miss
+    S.hist[id] = h;
+    save();
+  }
+
+  /* ── helpers ──────────────────────────────────────────────────────── */
+  const el = (tag, cls, html) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (html != null) n.innerHTML = html;
+    return n;
+  };
+  const chaptersFor = y => CH.filter(c => c.y === y).sort((a, b) => a.n - b.n);
+  const chapterOf = (y, n) => CH.find(c => c.y === y && c.n === n);
+  function shuffle(a) {
+    const r = a.slice();
+    for (let i = r.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [r[i], r[j]] = [r[j], r[i]];
+    }
+    return r;
+  }
+  const fmtTime = s => {
+    const m = Math.floor(Math.abs(s) / 60), ss = Math.abs(s) % 60;
+    return (s < 0 ? "-" : "") + m + ":" + String(ss).padStart(2, "0");
+  };
+
+  /* ── the question card ────────────────────────────────────────────── */
+  function qcard(q, opts) {
+    opts = opts || {};
+    const card = el("article", "qcard");
+    const ch = chapterOf(q.y, q.c);
+    const head = el("div", "qhead");
+    head.innerHTML =
+      "Year " + q.y + ' <span class="sep">/</span> Ch ' + q.c + " " +
+      (ch ? ch.topic : "") +
+      (q.sec === "challenge" ? ' <span class="sep">/</span> Challenge' : "") +
+      (q.src ? ' <span class="srcbadge">' + q.src + "</span>" : "") +
+      '<span class="tier tier-' + q.tier + '"><span class="tier-dot"></span>' + q.tier + "</span>";
+    card.appendChild(head);
+
+    const body = el("div", "qbody");
+    body.appendChild(el("div", "qno", opts.label || q.lbl));
+    const txt = el("div", "qtext");
+    txt.appendChild(el("p", null, q.t));
+    if (q.p && q.p.length) {
+      const ol = el("ol", "parts" + (q.inline ? " inline" : ""));
+      q.p.forEach(p => ol.appendChild(el("li", null, p)));
+      txt.appendChild(ol);
+    }
+    body.appendChild(txt);
+    body.appendChild(el("div", "marks", "/" + q.m));
+    card.appendChild(body);
+
+    if (opts.showAnswer) {
+      const a = el("div", "answer");
+      a.appendChild(el("h3", null, "Answer"));
+      a.appendChild(el("div", "atext", q.a));
+      if (WORKIDX[q.id]) a.appendChild(workingBlock(q));
+      card.appendChild(a);
+    }
+    return card;
+  }
+
+  /* Verbose derivation, behind a toggle whose state is remembered — a student
+     who always wants it open should only have to say so once. In the lazy build
+     the chain itself arrives on first open. */
+  function workingBlock(q) {
+    const wrap = el("div");
+    const nSteps = WORKIDX[q.id] || 0;
+    const chain = el("div", "working-out");
+    const btn = el("button", "wo-toggle");
+
+    const label = open => open ? "Hide working"
+      : "Show full working &middot; " + nSteps + " step" + (nSteps === 1 ? "" : "s");
+
+    function paint() {
+      chain.innerHTML = "";
+      const rec = WORK[q.id];
+      if (!rec) {
+        chain.appendChild(el("div", "wo-problem",
+          "The working for this question could not be loaded. " +
+          "<strong>maths-question-bank.html</strong> is the single-file version " +
+          "with every chain built in &mdash; open that instead."));
+        return;
+      }
+      let last = null;
+      rec.w.forEach(s2 => {
+        const part = s2.p || "";
+        if (part && part !== last) {
+          const m = /^([a-z])\((i{1,3}|iv|v|vi{1,3})\)$/.exec(part);
+          chain.appendChild(el("div", "wo-part",
+            m ? "Part (" + m[1] + ")(" + m[2] + ")" : "Part (" + part + ")"));
+        }
+        last = part;
+        const step = el("div", "wo-step");
+        step.appendChild(el("div", "wo-expr", s2.e));
+        if (s2.y) step.appendChild(el("div", "wo-why", s2.y));
+        chain.appendChild(step);
+      });
+      if (rec.wp) chain.appendChild(el("div", "wo-problem", rec.wp));
+    }
+
+    function open() {
+      chain.hidden = false;
+      btn.innerHTML = label(true);
+      btn.setAttribute("aria-expanded", "true");
+      prefSet("working.open", "1");
+    }
+
+    btn.innerHTML = label(false);
+    btn.setAttribute("aria-expanded", "false");
+    chain.hidden = true;
+
+    btn.onclick = () => {
+      if (!chain.hidden) {                       // closing
+        chain.hidden = true;
+        btn.innerHTML = label(false);
+        btn.setAttribute("aria-expanded", "false");
+        prefSet("working.open", "0");
+        return;
+      }
+      if (WORK[q.id]) { paint(); open(); return; }
+      btn.disabled = true;
+      btn.textContent = "Loading working\u2026";
+      loadWork(q.y).then(() => {
+        btn.disabled = false; paint(); open();
+      }).catch(() => {
+        btn.disabled = false; paint(); open();   // paint() shows the fallback note
+      });
+    };
+
+    wrap.appendChild(btn);
+    wrap.appendChild(chain);
+
+    /* Remembered preference: open it straight away. In the lazy build that
+       means kicking off the chunk load without waiting for a click. */
+    if (prefGet("working.open") === "1") {
+      if (WORK[q.id]) { paint(); open(); }
+      else {
+        btn.disabled = true;
+        btn.textContent = "Loading working\u2026";
+        loadWork(q.y).then(() => { btn.disabled = false; paint(); open(); })
+                     .catch(() => { btn.disabled = false; paint(); open(); });
+      }
+    }
+    return wrap;
+  }
+
+  /* ── a reusable "one question at a time" runner ───────────────────── */
+  function makeRunner(host, queue, opts) {
+    opts = opts || {};
+    let i = 0, revealed = false;
+
+    function draw() {
+      host.innerHTML = "";
+      if (!queue.length) {
+        host.appendChild(el("div", "empty",
+          "<strong>Nothing queued.</strong><p>" + (opts.emptyMsg || "") + "</p>"));
+        return;
+      }
+      const q = queue[i];
+      host.appendChild(qcard(q, { showAnswer: revealed }));
+
+      const bar = el("div", "actions");
+      const prev = el("button", "btn btn-quiet", "&larr; Prev");
+      prev.disabled = i === 0;
+      prev.onclick = () => { if (i > 0) { i--; revealed = false; draw(); } };
+      bar.appendChild(prev);
+
+      if (!revealed) {
+        const show = el("button", "btn",
+          'Show answer <span class="kbd">space</span>');
+        show.onclick = () => { revealed = true; draw(); };
+        bar.appendChild(show);
+      } else {
+        const ok = el("button", "btn btn-ok",
+          'Got it <span class="kbd">1</span>');
+        ok.onclick = () => mark("ok");
+        const miss = el("button", "btn btn-miss",
+          'Missed it <span class="kbd">2</span>');
+        miss.onclick = () => mark("miss");
+        bar.appendChild(ok); bar.appendChild(miss);
+      }
+
+      bar.appendChild(el("span", "spacer"));
+      const h = S.hist[q.id];
+      if (h) {
+        bar.appendChild(el("span", "progress",
+          "seen " + h.n + " &middot; " + h.ok + " right"));
+      }
+      bar.appendChild(el("span", "progress",
+        (i + 1) + " / " + queue.length));
+      const next = el("button", "btn btn-quiet", "Next &rarr;");
+      next.disabled = i >= queue.length - 1;
+      next.onclick = () => { if (i < queue.length - 1) { i++; revealed = false; draw(); } };
+      bar.appendChild(next);
+      host.appendChild(bar);
+    }
+
+    function mark(result) {
+      record(queue[i].id, result);
+      if (i < queue.length - 1) { i++; revealed = false; draw(); }
+      else { draw(); }
+    }
+
+    host.__keys = e => {
+      if (e.target.matches("input, select, textarea")) return;
+      if (e.key === " " && !revealed) { e.preventDefault(); revealed = true; draw(); }
+      else if (revealed && e.key === "1") { mark("ok"); }
+      else if (revealed && e.key === "2") { mark("miss"); }
+      else if (e.key === "ArrowLeft" && i > 0) { i--; revealed = false; draw(); }
+      else if (e.key === "ArrowRight" && i < queue.length - 1) { i++; revealed = false; draw(); }
+    };
+    draw();
+    return host;
+  }
+
+  let activeKeys = null;
+  function bindKeys(host) {
+    activeKeys = host && host.__keys ? host.__keys : null;
+  }
+  document.addEventListener("keydown", e => { if (activeKeys) activeKeys(e); });
+
+  /* ── chip group ───────────────────────────────────────────────────── */
+  function chipGroup(values, selected, onChange, labels) {
+    const wrap = el("div", "chips");
+    values.forEach(v => {
+      const b = el("button", "chip", labels ? labels(v) : v);
+      b.type = "button";
+      b.setAttribute("aria-pressed", selected.has(v) ? "true" : "false");
+      b.onclick = () => {
+        if (selected.has(v)) selected.delete(v); else selected.add(v);
+        b.setAttribute("aria-pressed", selected.has(v) ? "true" : "false");
+        onChange();
+      };
+      wrap.appendChild(b);
+    });
+    return wrap;
+  }
+
+  /* ═══ MODE: Practice ══════════════════════════════════════════════ */
+  function renderPractice() {
+    const host = document.getElementById("p-practice");
+    host.innerHTML = "";
+    let year = localStorage_get("practice.year") || "7";
+    let chap = null;
+
+    const setup = el("div", "setup");
+    setup.appendChild(el("h2", null, "Work through a chapter"));
+    setup.appendChild(el("p", "lede",
+      "Pick a chapter and step through its questions in order, easiest first. " +
+      "Work each one on paper, then reveal the answer and mark yourself."));
+
+    const fy = el("div", "field");
+    fy.appendChild(el("span", "flabel", "Year"));
+    const ySel = el("div", "chips");
+    YEARS.forEach(y => {
+      const b = el("button", "chip", "Year " + y);
+      b.type = "button";
+      b.setAttribute("aria-pressed", y === year ? "true" : "false");
+      b.onclick = () => { year = y; localStorage_set("practice.year", y); renderPractice(); };
+      ySel.appendChild(b);
+    });
+    fy.appendChild(ySel);
+    setup.appendChild(fy);
+
+    const fc = el("div", "field");
+    fc.appendChild(el("span", "flabel", "Chapter"));
+    const sel = el("select");
+    chaptersFor(year).forEach(c => {
+      const n = Q.filter(q => q.y === year && q.c === c.n).length;
+      const o = el("option", null,
+        "Ch " + c.n + " — " + c.topic + "  (" + n + ")");
+      o.value = String(c.n);
+      sel.appendChild(o);
+    });
+    fc.appendChild(sel);
+    setup.appendChild(fc);
+
+    const go = el("button", "btn", "Start chapter");
+    setup.appendChild(el("div", "btn-row")).appendChild(go);
+    host.appendChild(setup);
+
+    const runHost = el("div", "stack");
+    host.appendChild(runHost);
+
+    go.onclick = () => {
+      chap = parseInt(sel.value, 10);
+      const c = chapterOf(year, chap);
+      const queue = Q.filter(q => q.y === year && q.c === chap);
+      runHost.innerHTML = "";
+      collapseSetup(setup, runHost,
+        "Year " + year + " &middot; Ch " + chap + " " + (c ? c.topic : ""),
+        queue.length + " questions");
+      const inner = el("div");
+      runHost.appendChild(inner);
+      makeRunner(inner, queue, {});
+      bindKeys(inner);
+      runHost.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+  }
+
+  /* Hide the picker once a run starts and leave a one-line stand-in that can
+     bring it back. */
+  function collapseSetup(setup, host, what, meta) {
+    setup.hidden = true;
+    const bar = el("div", "resume");
+    bar.appendChild(el("span", "what", what));
+    if (meta) bar.appendChild(el("span", "progress", meta));
+    bar.appendChild(el("span", "spacer"));
+    const change = el("button", "btn btn-quiet", "Change");
+    change.onclick = () => {
+      setup.hidden = false;
+      host.innerHTML = "";
+      bindKeys(null);
+      setup.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    bar.appendChild(change);
+    host.appendChild(bar);
+  }
+
+  /* ═══ MODE: Mixed drill ═══════════════════════════════════════════ */
+  const drillYears = new Set(["7"]);
+  const drillTiers = new Set(["medium", "hard"]);
+  function renderDrill() {
+    const host = document.getElementById("p-drill");
+    host.innerHTML = "";
+    const setup = el("div", "setup");
+    setup.appendChild(el("h2", null, "Mixed drill"));
+    setup.appendChild(el("p", "lede",
+      "Questions drawn at random across chapters, which is closer to what an " +
+      "exam does than working one chapter at a time."));
+
+    const fy = el("div", "field");
+    fy.appendChild(el("span", "flabel", "Years"));
+    fy.appendChild(chipGroup(YEARS, drillYears, update, y => "Year " + y));
+    setup.appendChild(fy);
+
+    const ft = el("div", "field");
+    ft.appendChild(el("span", "flabel", "Difficulty"));
+    ft.appendChild(chipGroup(TIERS, drillTiers, update));
+    setup.appendChild(ft);
+
+    const fn = el("div", "field");
+    fn.appendChild(el("span", "flabel", "How many"));
+    const num = el("select");
+    [5, 10, 15, 20, 30].forEach(v => {
+      const o = el("option", null, v + " questions"); o.value = v;
+      if (v === 10) o.selected = true;
+      num.appendChild(o);
+    });
+    fn.appendChild(num);
+    setup.appendChild(fn);
+
+    const avail = el("p", "hint");
+    setup.appendChild(avail);
+    const go = el("button", "btn", "Start drill");
+    setup.appendChild(el("div", "btn-row")).appendChild(go);
+    host.appendChild(setup);
+    const runHost = el("div", "stack");
+    host.appendChild(runHost);
+
+    function pool() {
+      return Q.filter(q => drillYears.has(q.y) && drillTiers.has(q.tier));
+    }
+    function update() {
+      const n = pool().length;
+      avail.textContent = n + " question" + (n === 1 ? "" : "s") + " match.";
+      go.disabled = n === 0;
+    }
+    update();
+
+    go.onclick = () => {
+      const queue = shuffle(pool()).slice(0, parseInt(num.value, 10));
+      runHost.innerHTML = "";
+      const yl = [...drillYears].sort().map(y => "Yr " + y).join(", ");
+      collapseSetup(setup, runHost,
+        "Mixed drill &middot; " + yl,
+        queue.length + " questions &middot; " + [...drillTiers].join(", "));
+      const inner = el("div");
+      runHost.appendChild(inner);
+      makeRunner(inner, queue, {});
+      bindKeys(inner);
+      runHost.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+  }
+
+  /* ═══ MODE: Weak spots ═══════════════════════════════════════════ */
+  function renderWeak() {
+    const host = document.getElementById("p-weak");
+    host.innerHTML = "";
+    const seen = Object.keys(S.hist);
+
+    if (!seen.length) {
+      host.appendChild(el("div", "empty",
+        "<strong>Nothing tracked yet.</strong>" +
+        "<p>Mark yourself in Practice or Mixed drill and this page will show " +
+        "which chapters need work, and re-serve the questions you missed.</p>"));
+      return;
+    }
+
+    /* per-chapter accuracy */
+    const agg = {};
+    seen.forEach(id => {
+      const q = byId[id]; if (!q) return;
+      const k = q.y + "|" + q.c;
+      const a = agg[k] || (agg[k] = { y: q.y, c: q.c, topic: q.topic, n: 0, ok: 0, qs: 0 });
+      const h = S.hist[id];
+      a.n += h.n; a.ok += h.ok; a.qs += 1;
+    });
+    const rows = Object.values(agg).map(a => {
+      a.pct = a.n ? Math.round((a.ok / a.n) * 100) : 0;
+      return a;
+    }).sort((x, y) => x.pct - y.pct);
+
+    const missed = seen
+      .filter(id => S.hist[id] && !S.hist[id].lastOk && byId[id])
+      .sort((a, b) => (S.hist[a].last || 0) - (S.hist[b].last || 0))
+      .map(id => byId[id]);
+
+    const top = el("div", "card");
+    top.appendChild(el("h2", null, "Where the marks are going"));
+    const totalAsked = rows.reduce((s, r) => s + r.n, 0);
+    const totalOk = rows.reduce((s, r) => s + r.ok, 0);
+    top.appendChild(el("p", "lede",
+      totalOk + " right out of " + totalAsked + " attempts across " +
+      rows.length + " chapter" + (rows.length === 1 ? "" : "s") +
+      ". Weakest first."));
+
+    const wrap = el("div", "tablewrap");
+    const t = el("table", "stats");
+    t.innerHTML =
+      "<thead><tr><th>Chapter</th><th class='num'>Qs</th>" +
+      "<th class='num'>Tries</th><th class='num'>Right</th>" +
+      "<th>Accuracy</th></tr></thead>";
+    const tb = el("tbody");
+    rows.forEach(r => {
+      const tr = el("tr", r.pct < 60 ? "weak" : null);
+      tr.innerHTML =
+        "<td>Year " + r.y + " &middot; Ch " + r.c + " " + r.topic + "</td>" +
+        "<td class='num'>" + r.qs + "</td>" +
+        "<td class='num'>" + r.n + "</td>" +
+        "<td class='num'>" + r.ok + "</td>" +
+        "<td><span class='bar-track'><span class='bar' style='width:" + r.pct +
+        "%;background:" + (r.pct < 60 ? "var(--miss)" : r.pct < 80 ? "var(--part)" : "var(--ok)") +
+        "'></span></span> <span class='progress'>" + r.pct + "%</span></td>";
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    wrap.appendChild(t);
+    top.appendChild(wrap);
+    host.appendChild(top);
+
+    const rev = el("div", "card");
+    rev.appendChild(el("h2", null, "Redo what you missed"));
+    rev.appendChild(el("p", "lede",
+      missed.length
+        ? missed.length + " question" + (missed.length === 1 ? "" : "s") +
+          " you got wrong last time, oldest first."
+        : "Nothing outstanding — every question you have marked was right last time."));
+    const row = el("div", "btn-row");
+    const goRedo = el("button", "btn", "Redo missed questions");
+    goRedo.disabled = !missed.length;
+    row.appendChild(goRedo);
+    const reset = el("button", "btn btn-quiet", "Clear all progress");
+    reset.onclick = () => {
+      if (confirm("Clear all tracked progress on this device? This cannot be undone.")) {
+        S = { hist: {}, exams: [] }; save(); renderWeak();
+      }
+    };
+    row.appendChild(reset);
+    rev.appendChild(row);
+    host.appendChild(rev);
+
+    const runHost = el("div", "stack");
+    host.appendChild(runHost);
+    goRedo.onclick = () => {
+      runHost.innerHTML = "";
+      const inner = el("div");
+      runHost.appendChild(inner);
+      makeRunner(inner, missed, {});
+      bindKeys(inner);
+      inner.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    if (S.exams.length) {
+      const ex = el("div", "card");
+      ex.appendChild(el("h2", null, "Past exams"));
+      const w2 = el("div", "tablewrap");
+      const t2 = el("table", "stats");
+      t2.innerHTML = "<thead><tr><th>When</th><th>Paper</th>" +
+        "<th class='num'>Score</th><th class='num'>Time</th></tr></thead>";
+      const tb2 = el("tbody");
+      S.exams.slice().reverse().slice(0, 12).forEach(e => {
+        const tr = el("tr");
+        tr.innerHTML =
+          "<td>" + new Date(e.ts).toLocaleDateString() + "</td>" +
+          "<td>Year " + e.year + " &middot; " + e.total + " marks</td>" +
+          "<td class='num'>" + e.scored + "/" + e.total +
+          " (" + Math.round((e.scored / e.total) * 100) + "%)</td>" +
+          "<td class='num'>" + fmtTime(e.secs) + "</td>";
+        tb2.appendChild(tr);
+      });
+      t2.appendChild(tb2);
+      w2.appendChild(t2);
+      ex.appendChild(w2);
+      host.appendChild(ex);
+    }
+  }
+
+  /* ═══ MODE: Exam ═════════════════════════════════════════════════ */
+  const PROFILES = {
+    balanced: { label: "Balanced", w: { easy: 2, medium: 4, hard: 2, challenge: 1 } },
+    core:     { label: "Core skills", w: { easy: 3, medium: 5, hard: 1, challenge: 0 } },
+    stretch:  { label: "Stretch", w: { easy: 0, medium: 2, hard: 3, challenge: 3 } }
+  };
+
+  function pickPaper(year, targetMarks, profileKey) {
+    const w = PROFILES[profileKey].w;
+    const buckets = {};
+    TIERS.forEach(t => {
+      buckets[t] = shuffle(Q.filter(q => q.y === year && q.tier === t));
+    });
+    const bag = [];
+    TIERS.forEach(t => { for (let k = 0; k < w[t]; k++) bag.push(t); });
+    const chosen = [], used = new Set();
+    let marks = 0, guard = 0;
+    while (marks < targetMarks && guard++ < 4000) {
+      const tier = bag[Math.floor(Math.random() * bag.length)];
+      const b = buckets[tier];
+      let q = null;
+      while (b.length) { const c = b.pop(); if (!used.has(c.id)) { q = c; break; } }
+      if (!q) {
+        // that tier is exhausted; fall back to any remaining question
+        const any = TIERS.map(t => buckets[t]).find(x => x.length);
+        if (!any) break;
+        q = any.pop();
+        if (!q || used.has(q.id)) continue;
+      }
+      used.add(q.id); chosen.push(q); marks += q.m;
+    }
+    // spread chapters out rather than clumping
+    return { qs: shuffle(chosen), marks: marks };
+  }
+
+  function renderExam() {
+    const host = document.getElementById("p-exam");
+    host.innerHTML = "";
+    const setup = el("div", "setup");
+    setup.appendChild(el("h2", null, "Sit a timed paper"));
+    setup.appendChild(el("p", "lede",
+      "Generates a fresh mixed paper. Work the whole thing on paper against the " +
+      "clock, then mark it question by question. The clock keeps running past the " +
+      "target so you can see the real time taken."));
+
+    let year = "7", profile = "balanced";
+
+    const fy = el("div", "field");
+    fy.appendChild(el("span", "flabel", "Year"));
+    const yc = el("div", "chips");
+    YEARS.forEach(y => {
+      const b = el("button", "chip", "Year " + y); b.type = "button";
+      b.setAttribute("aria-pressed", y === year ? "true" : "false");
+      b.onclick = () => {
+        year = y;
+        [...yc.children].forEach(c => c.setAttribute("aria-pressed", "false"));
+        b.setAttribute("aria-pressed", "true");
+      };
+      yc.appendChild(b);
+    });
+    fy.appendChild(yc);
+    setup.appendChild(fy);
+
+    const fp = el("div", "field");
+    fp.appendChild(el("span", "flabel", "Difficulty mix"));
+    const pc = el("div", "chips");
+    Object.keys(PROFILES).forEach(k => {
+      const b = el("button", "chip", PROFILES[k].label); b.type = "button";
+      b.setAttribute("aria-pressed", k === profile ? "true" : "false");
+      b.onclick = () => {
+        profile = k;
+        [...pc.children].forEach(c => c.setAttribute("aria-pressed", "false"));
+        b.setAttribute("aria-pressed", "true");
+      };
+      pc.appendChild(b);
+    });
+    fp.appendChild(pc);
+    setup.appendChild(fp);
+
+    const fm = el("div", "field");
+    fm.appendChild(el("span", "flabel", "Length"));
+    const ms = el("select");
+    [20, 30, 40, 60].forEach(v => {
+      const o = el("option", null, v + " marks · about " + Math.round(v * 0.9) + " min");
+      o.value = v; if (v === 40) o.selected = true;
+      ms.appendChild(o);
+    });
+    fm.appendChild(ms);
+    setup.appendChild(fm);
+
+    const go = el("button", "btn", "Generate paper");
+    setup.appendChild(el("div", "btn-row")).appendChild(go);
+    host.appendChild(setup);
+    const stage = el("div", "stack");
+    host.appendChild(stage);
+
+    go.onclick = () => {
+      const target = parseInt(ms.value, 10);
+      const paper = pickPaper(year, target, profile);
+      if (!paper.qs.length) return;
+      runExam(stage, setup, year, paper, Math.round(target * 0.9));
+    };
+  }
+
+  function runExam(stage, setup, year, paper, targetMins) {
+    setup.hidden = true;
+    stage.innerHTML = "";
+    bindKeys(null);
+    const started = Date.now();
+    let timerId = null;
+
+    const bar = el("div", "exambar");
+    const clock = el("span", "timer", "0:00");
+    bar.appendChild(clock);
+    bar.appendChild(el("span", "exam-meta",
+      "Year " + year + " &middot; " + paper.qs.length + " questions &middot; " +
+      paper.marks + " marks &middot; target " + targetMins + " min"));
+    bar.appendChild(el("span", "spacer"));
+    const finish = el("button", "btn", "Finish &amp; mark");
+    bar.appendChild(finish);
+    stage.appendChild(bar);
+
+    timerId = setInterval(() => {
+      const s = Math.floor((Date.now() - started) / 1000);
+      clock.textContent = fmtTime(s);
+      if (s > targetMins * 60) clock.classList.add("over");
+    }, 1000);
+
+    const list = el("div", "examlist");
+    paper.qs.forEach((q, k) => {
+      list.appendChild(qcard(q, { label: String(k + 1) }));
+    });
+    stage.appendChild(list);
+    const note = el("div", "paper-note");
+    note.innerHTML = "Answers are hidden until you finish. Work on paper &mdash; " +
+      "there is nowhere here to write.";
+    stage.insertBefore(note, list);
+
+    finish.onclick = () => {
+      clearInterval(timerId);
+      const secs = Math.floor((Date.now() - started) / 1000);
+      markExam(stage, setup, year, paper, secs);
+    };
+  }
+
+  function markExam(stage, setup, year, paper, secs) {
+    stage.innerHTML = "";
+    const awarded = {};
+    let i = 0;
+
+    const head = el("div", "card");
+    head.appendChild(el("h2", null, "Mark your paper"));
+    head.appendChild(el("p", "lede",
+      "Compare each question against the worked answer. Award full marks for a " +
+      "correct method and answer, half for a right method with a slip, none " +
+      "otherwise. Rounded down at the end."));
+    stage.appendChild(head);
+    const holder = el("div");
+    stage.appendChild(holder);
+
+    function draw() {
+      holder.innerHTML = "";
+      if (i >= paper.qs.length) { results(); return; }
+      const q = paper.qs[i];
+      holder.appendChild(qcard(q, { showAnswer: true, label: String(i + 1) }));
+      const bar = el("div", "actions");
+      const full = el("button", "btn btn-ok", "Full &middot; " + q.m);
+      full.onclick = () => award(q, q.m, "ok");
+      const half = el("button", "btn btn-part", "Half &middot; " + (q.m / 2));
+      half.onclick = () => award(q, q.m / 2, "part");
+      const none = el("button", "btn btn-miss", "None &middot; 0");
+      none.onclick = () => award(q, 0, "miss");
+      bar.appendChild(full); bar.appendChild(half); bar.appendChild(none);
+      bar.appendChild(el("span", "spacer"));
+      bar.appendChild(el("span", "progress", (i + 1) + " / " + paper.qs.length));
+      holder.appendChild(bar);
+      holder.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function award(q, marks, result) {
+      awarded[q.id] = marks;
+      record(q.id, result);
+      i++; draw();
+    }
+
+    function results() {
+      const scored = Math.floor(paper.qs.reduce((s, q) => s + (awarded[q.id] || 0), 0));
+      const pct = Math.round((scored / paper.marks) * 100);
+      S.exams.push({ ts: Date.now(), year: year, total: paper.marks,
+                     scored: scored, secs: secs });
+      save();
+
+      holder.innerHTML = "";
+      const hero = el("div", "score-hero");
+      hero.appendChild(el("div", "score-big", scored + " / " + paper.marks));
+      hero.appendChild(el("div", "score-sub",
+        pct + "% &middot; Year " + year + " &middot; " + fmtTime(secs) + " taken"));
+      holder.appendChild(hero);
+
+      /* per-chapter breakdown, weakest first */
+      const agg = {};
+      paper.qs.forEach(q => {
+        const k = q.c;
+        const a = agg[k] || (agg[k] = { c: q.c, topic: q.topic, got: 0, of: 0 });
+        a.got += (awarded[q.id] || 0); a.of += q.m;
+      });
+      const rows = Object.values(agg)
+        .map(a => { a.pct = Math.round((a.got / a.of) * 100); return a; })
+        .sort((x, y) => x.pct - y.pct);
+
+      const card = el("div", "card");
+      card.appendChild(el("h2", null, "By chapter"));
+      const wrap = el("div", "tablewrap");
+      const t = el("table", "stats");
+      t.innerHTML = "<thead><tr><th>Chapter</th><th class='num'>Marks</th>" +
+        "<th>Share</th></tr></thead>";
+      const tb = el("tbody");
+      rows.forEach(r => {
+        const tr = el("tr", r.pct < 60 ? "weak" : null);
+        tr.innerHTML = "<td>Ch " + r.c + " " + r.topic + "</td>" +
+          "<td class='num'>" + Math.floor(r.got) + "/" + r.of + "</td>" +
+          "<td><span class='bar-track'><span class='bar' style='width:" + r.pct +
+          "%;background:" + (r.pct < 60 ? "var(--miss)" : r.pct < 80 ? "var(--part)" : "var(--ok)") +
+          "'></span></span> <span class='progress'>" + r.pct + "%</span></td>";
+        tb.appendChild(tr);
+      });
+      t.appendChild(tb); wrap.appendChild(t); card.appendChild(wrap);
+      holder.appendChild(card);
+
+      const row = el("div", "btn-row");
+      const again = el("button", "btn", "New paper");
+      again.onclick = () => { setup.hidden = false; stage.innerHTML = ""; };
+      row.appendChild(again);
+      const toWeak = el("button", "btn btn-quiet", "See weak spots");
+      toWeak.onclick = () => switchMode("weak");
+      row.appendChild(toWeak);
+      holder.appendChild(row);
+    }
+    draw();
+  }
+
+  /* ── tiny guarded prefs helper ────────────────────────────────────── */
+  const prefGet = k => localStorage_get(k);
+  const prefSet = (k, v) => localStorage_set(k, v);
+  function localStorage_get(k) {
+    try { return localStorage.getItem(KEY + "." + k); } catch (e) { return null; }
+  }
+  function localStorage_set(k, v) {
+    try { localStorage.setItem(KEY + "." + k, v); } catch (e) {}
+  }
+
+  /* ── router ───────────────────────────────────────────────────────── */
+  const MODES = {
+    practice: { tab: "tab-practice", panel: "p-practice", render: renderPractice },
+    drill:    { tab: "tab-drill",    panel: "p-drill",    render: renderDrill },
+    weak:     { tab: "tab-weak",     panel: "p-weak",     render: renderWeak },
+    exam:     { tab: "tab-exam",     panel: "p-exam",     render: renderExam }
+  };
+  function switchMode(name) {
+    Object.keys(MODES).forEach(k => {
+      const m = MODES[k];
+      document.getElementById(m.tab).setAttribute("aria-selected", k === name ? "true" : "false");
+      document.getElementById(m.panel).hidden = k !== name;
+    });
+    bindKeys(null);
+    MODES[name].render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  Object.keys(MODES).forEach(k => {
+    document.getElementById(MODES[k].tab).onclick = () => switchMode(k);
+  });
+  switchMode("practice");
+})();
+</script>
