@@ -322,6 +322,50 @@ table.qtable td.blank { height: 1.6rem; }
   max-width: var(--measure);
 }
 
+/* ── per-part answers ────────────────────────────────────────────────────
+      A multi-part answer is split upstream into one piece per part, so a
+      student who missed only part c can say so instead of losing the whole
+      question. The answer rows ARE the control: you mark where you are
+      already reading, rather than looking away to a separate set of buttons. */
+.alead {
+  font-family: var(--serif); font-size: .95rem; line-height: 1.6;
+  color: var(--ink-soft); max-width: var(--measure); margin-bottom: var(--s2);
+}
+ol.aparts { list-style: none; margin: var(--s2) 0 0; padding: 0; }
+ol.aparts > li { margin: 0 0 .15rem; }
+.apart {
+  appearance: none; font: inherit; color: inherit; cursor: pointer;
+  width: 100%; text-align: left; background: transparent;
+  border: 1px solid transparent; border-radius: 7px;
+  padding: .26rem .5rem .26rem 0;
+  display: grid; grid-template-columns: 1.7rem 1fr auto; align-items: start;
+}
+.apart:hover { background: var(--rule-soft); border-color: var(--rule); }
+.apart:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.apart-lbl {
+  font-family: var(--sans); font-size: .82rem; color: var(--ink-faint);
+  padding: .22rem 0 0 .5rem;
+}
+.apart-ans { font-family: var(--serif); font-size: 1rem; line-height: 1.6; }
+.apart-x {
+  font-family: var(--sans); font-size: .72rem; font-weight: 600;
+  letter-spacing: .04em; color: var(--ink-faint); opacity: 0;
+  padding: .34rem 0 0 var(--s3); white-space: nowrap;
+}
+.apart:hover .apart-x { opacity: .6; }
+.apart[aria-pressed="true"] { background: var(--miss-wash); border-color: var(--miss); }
+.apart[aria-pressed="true"] .apart-lbl,
+.apart[aria-pressed="true"] .apart-x { color: var(--miss); opacity: 1; }
+.apart[aria-pressed="true"] .apart-ans { opacity: .72; }
+/* static rows, where there is nothing to mark */
+li > .apart-static { display: grid; grid-template-columns: 1.7rem 1fr;
+  padding: .26rem .5rem .26rem 0; }
+.apart-hint {
+  font-family: var(--sans); font-size: .76rem; color: var(--ink-faint);
+  margin-top: var(--s3);
+}
+.apart-hint .kbd { margin-left: .1rem; }
+
 /* ── the working-out chain ──────────────────────────────────────────────
       A derivation is a sequence, so it reads as one column of lines down a
       rule, each line paired with the reason it happened. Expression left,
@@ -541,6 +585,11 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
     return workState[year];
   }
   const KEY = "mathsqb.v1";
+  const PLBL = "abcdefghijklmnop";
+  /* A question can be marked part by part only when the exporter produced one
+     answer per part AND the two counts agree. Anything else - a cross-cutting
+     answer, a question with no parts - is marked whole, exactly as before. */
+  const perPart = q => !!(q.ap && q.ap.length && q.p && q.ap.length === q.p.length);
   const YEARS = ["7", "8", "9", "10"];
   const TIERS = ["easy", "medium", "hard", "challenge"];
 
@@ -564,12 +613,22 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
   const byId = {};
   Q.forEach(q => { byId[q.id] = q; });
 
-  function record(id, result) {           // "ok" | "part" | "miss"
+  function record(id, result, missed) {   // "ok" | "part" | "miss"
     const h = S.hist[id] || { n: 0, ok: 0, miss: 0, last: 0, lastOk: false };
     h.n += 1;
     h.last = Date.now();
     if (result === "ok") { h.ok += 1; h.lastOk = true; }
     else { h.miss += 1; h.lastOk = false; }   // "part" resurfaces like a miss
+    /* Per-part detail, only when the question was actually marked part by
+       part. pn counts those attempts, so pm reads as "missed 3 of 5 times";
+       lp is what was missed most recently, which is what the redo list shows.
+       A question marked whole never grows these keys. */
+    if (missed) {
+      h.pn = (h.pn || 0) + 1;
+      const pm = h.pm || (h.pm = {});
+      missed.forEach(k => { pm[k] = (pm[k] || 0) + 1; });
+      h.lp = missed.slice();
+    }
     S.hist[id] = h;
     save();
   }
@@ -626,7 +685,40 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
     if (opts.showAnswer) {
       const a = el("div", "answer");
       a.appendChild(el("h3", null, "Answer"));
-      a.appendChild(el("div", "atext", q.a));
+      if (perPart(q)) {
+        /* The shared lead is the setup the parts all depend on - "there are
+           12 marbles altogether" - so it sits above them, unmarkable. */
+        if (q.al) a.appendChild(el("div", "alead", q.al));
+        const ol = el("ol", "aparts");
+        q.ap.forEach((ans, k) => {
+          const li = el("li");
+          const body =
+            '<span class="apart-lbl">' + PLBL[k] + ')</span>' +
+            '<span class="apart-ans">' + ans + "</span>";
+          if (opts.onPart) {
+            const b = el("button", "apart", body +
+              '<span class="apart-x">missed</span>');
+            b.type = "button";
+            b.setAttribute("aria-pressed", opts.missed.has(k) ? "true" : "false");
+            b.setAttribute("aria-label",
+              "Part " + PLBL[k] + " - mark as missed");
+            b.onclick = () => opts.onPart(k);
+            li.appendChild(b);
+          } else {
+            li.appendChild(el("div", "apart-static", body));
+          }
+          ol.appendChild(li);
+        });
+        a.appendChild(ol);
+        if (opts.onPart) {
+          a.appendChild(el("p", "apart-hint",
+            "Tap any part you got wrong &mdash; or press " +
+            '<span class="kbd">a</span>&ndash;<span class="kbd">' +
+            PLBL[q.ap.length - 1] + "</span>."));
+        }
+      } else {
+        a.appendChild(el("div", "atext", q.a));
+      }
       if (WORKIDX[q.id]) a.appendChild(workingBlock(q));
       card.appendChild(a);
     }
@@ -721,7 +813,7 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
   /* ── a reusable "one question at a time" runner ───────────────────── */
   function makeRunner(host, queue, opts) {
     opts = opts || {};
-    let i = 0, revealed = false;
+    let i = 0, revealed = false, missed = new Set();
 
     function draw() {
       host.innerHTML = "";
@@ -731,12 +823,16 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
         return;
       }
       const q = queue[i];
-      host.appendChild(qcard(q, { showAnswer: revealed }));
+      host.appendChild(qcard(q, {
+        showAnswer: revealed,
+        missed: missed,
+        onPart: revealed && perPart(q) ? togglePart : null,
+      }));
 
       const bar = el("div", "actions");
       const prev = el("button", "btn btn-quiet", "&larr; Prev");
       prev.disabled = i === 0;
-      prev.onclick = () => { if (i > 0) { i--; revealed = false; draw(); } };
+      prev.onclick = () => { if (i > 0) { i--; revealed = false; missed.clear(); draw(); } };
       bar.appendChild(prev);
 
       if (!revealed) {
@@ -744,13 +840,25 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
           'Show answer <span class="kbd">space</span>');
         show.onclick = () => { revealed = true; draw(); };
         bar.appendChild(show);
+      } else if (perPart(q) && missed.size) {
+        /* Something is selected, so the two blunt buttons would be ambiguous.
+           One button that says exactly what it is about to record. */
+        const n = q.ap.length;
+        const rec = el("button", "btn btn-part",
+          "Record &middot; " + missed.size + " of " + n + " missed " +
+          '<span class="kbd">enter</span>');
+        rec.onclick = () => markParts();
+        const clr = el("button", "btn btn-quiet", "Clear");
+        clr.onclick = () => { missed.clear(); draw(); };
+        bar.appendChild(rec); bar.appendChild(clr);
       } else {
+        const pp = perPart(q);
         const ok = el("button", "btn btn-ok",
           'Got it <span class="kbd">1</span>');
-        ok.onclick = () => mark("ok");
+        ok.onclick = () => mark("ok", pp ? [] : null);
         const miss = el("button", "btn btn-miss",
-          'Missed it <span class="kbd">2</span>');
-        miss.onclick = () => mark("miss");
+          (pp ? "Missed all" : "Missed it") + ' <span class="kbd">2</span>');
+        miss.onclick = () => mark("miss", pp ? q.ap.map((_, k) => k) : null);
         bar.appendChild(ok); bar.appendChild(miss);
       }
 
@@ -764,24 +872,53 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
         (i + 1) + " / " + queue.length));
       const next = el("button", "btn btn-quiet", "Next &rarr;");
       next.disabled = i >= queue.length - 1;
-      next.onclick = () => { if (i < queue.length - 1) { i++; revealed = false; draw(); } };
+      next.onclick = () => { if (i < queue.length - 1) { i++; revealed = false; missed.clear(); draw(); } };
       bar.appendChild(next);
       host.appendChild(bar);
     }
 
-    function mark(result) {
-      record(queue[i].id, result);
+    function mark(result, parts) {
+      record(queue[i].id, result, parts);
+      missed = new Set();
       if (i < queue.length - 1) { i++; revealed = false; draw(); }
       else { draw(); }
     }
 
+    /* Whole-question result derived from the parts, so the existing three
+       states keep their meaning and Weak spots needs no special case. */
+    function markParts() {
+      const q = queue[i], all = q.ap.length;
+      const list = [...missed].sort((a, b) => a - b);
+      mark(list.length === 0 ? "ok" : list.length === all ? "miss" : "part", list);
+    }
+
+    function togglePart(k) {
+      if (missed.has(k)) missed.delete(k); else missed.add(k);
+      draw();
+    }
+
     host.__keys = e => {
       if (e.target.matches("input, select, textarea")) return;
+      const q = queue[i];
+      const pp = q && perPart(q);
+      /* a-f toggle a part; 1 and 2 stay the one-keystroke "all right" and
+         "all wrong", which is still the common case. */
+      if (revealed && pp && e.key.length === 1) {
+        const k = PLBL.indexOf(e.key);
+        if (k >= 0 && k < q.ap.length) { e.preventDefault(); togglePart(k); return; }
+      }
+      if (revealed && pp && e.key === "Enter" && missed.size) {
+        e.preventDefault(); markParts(); return;
+      }
       if (e.key === " " && !revealed) { e.preventDefault(); revealed = true; draw(); }
-      else if (revealed && e.key === "1") { mark("ok"); }
-      else if (revealed && e.key === "2") { mark("miss"); }
-      else if (e.key === "ArrowLeft" && i > 0) { i--; revealed = false; draw(); }
-      else if (e.key === "ArrowRight" && i < queue.length - 1) { i++; revealed = false; draw(); }
+      else if (revealed && e.key === "1") { mark("ok", pp ? [] : null); }
+      else if (revealed && e.key === "2") {
+        mark("miss", pp ? q.ap.map((_, k) => k) : null);
+      }
+      else if (e.key === "ArrowLeft" && i > 0) { i--; revealed = false; missed.clear(); draw(); }
+      else if (e.key === "ArrowRight" && i < queue.length - 1) {
+        i++; revealed = false; missed.clear(); draw();
+      }
     };
     draw();
     return host;
@@ -1023,12 +1160,66 @@ table.stats tr.weak td:first-child { box-shadow: inset 3px 0 0 var(--miss); }
     top.appendChild(wrap);
     host.appendChild(top);
 
+    /* Which individual parts keep going wrong. This is the whole point of
+       marking part by part: a 6-part question that gets re-served in full
+       because one part was wrong wastes most of a study session. */
+    const partRows = seen.map(id => {
+      const q = byId[id], h = S.hist[id];
+      if (!q || !h || !h.pm || !h.pn) return null;
+      const worst = Object.keys(h.pm)
+        .map(k => ({ k: +k, n: h.pm[k] }))
+        .filter(x => x.n > 0)
+        .sort((a, b) => b.n - a.n || a.k - b.k);
+      if (!worst.length) return null;
+      return { q: q, h: h, worst: worst, top: worst[0].n / h.pn };
+    }).filter(Boolean)
+      .sort((a, b) => b.top - a.top || b.worst[0].n - a.worst[0].n)
+      .slice(0, 12);
+
+    if (partRows.length) {
+      const pc = el("div", "card");
+      pc.appendChild(el("h2", null, "Parts that keep going wrong"));
+      pc.appendChild(el("p", "lede",
+        "Marked part by part, so this is the specific step to look at &mdash; " +
+        "not the whole question."));
+      const pw = el("div", "tablewrap");
+      const pt = el("table", "stats");
+      pt.innerHTML = "<thead><tr><th>Question</th><th>Parts missed</th>" +
+        "<th class='num'>Marked</th></tr></thead>";
+      const ptb = el("tbody");
+      partRows.forEach(r => {
+        const tr = el("tr", r.top >= 0.5 ? "weak" : null);
+        const chips = r.worst.map(x =>
+          '<span class="tier tier-' + (x.n / r.h.pn >= .5 ? "hard" : "medium") +
+          '">' + PLBL[x.k] + ") &times;" + x.n + "</span>").join(" ");
+        tr.innerHTML =
+          "<td>Year " + r.q.y + " &middot; Ch " + r.q.c + " " + r.q.lbl +
+          " <span class='progress'>" + r.q.topic + "</span></td>" +
+          "<td>" + chips + "</td>" +
+          "<td class='num'>" + r.h.pn + "</td>";
+        ptb.appendChild(tr);
+      });
+      pt.appendChild(ptb);
+      pw.appendChild(pt);
+      pc.appendChild(pw);
+      host.appendChild(pc);
+    }
+
     const rev = el("div", "card");
     rev.appendChild(el("h2", null, "Redo what you missed"));
     rev.appendChild(el("p", "lede",
       missed.length
         ? missed.length + " question" + (missed.length === 1 ? "" : "s") +
-          " you got wrong last time, oldest first."
+          " you got wrong last time, oldest first." +
+          (function () {
+            const partial = missed.filter(q => {
+              const h = S.hist[q.id];
+              return h && h.lp && h.lp.length && h.lp.length < (q.ap || []).length;
+            }).length;
+            return partial
+              ? " " + partial + " of them you only missed part of."
+              : "";
+          })()
         : "Nothing outstanding — every question you have marked was right last time."));
     const row = el("div", "btn-row");
     const goRedo = el("button", "btn", "Redo missed questions");

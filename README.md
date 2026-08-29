@@ -17,7 +17,29 @@ page; progress lives in your own browser.
 | **Exam** | Generates a fresh mixed paper to a target mark count and difficulty profile, runs a clock, then marks question by question (full / half / none) and reports a score broken down by chapter. |
 
 Keyboard, in the one-question-at-a-time modes: `space` reveals, `1` = got it,
-`2` = missed it, `←` / `→` move between questions.
+`2` = missed it (or missed all), `a`–`f` toggle a single part, `enter` records
+a part-by-part result, `←` / `→` move between questions.
+
+## Marking part by part
+
+85% of the questions have parts, so "missed it" on a four-part question threw
+away most of what you'd just learned about yourself — 3 of 4 right was recorded
+identically to 0 of 4, and Weak spots then re-served the whole question because
+one part was wrong.
+
+So the answer is shown as one row per part, and **the rows are the control**:
+tap the ones you got wrong, where you are already reading, rather than looking
+away to a separate set of buttons. Nothing tapped and it is still one keystroke
+— `1` for all right, `2` for all wrong. The whole-question result derives itself
+from the parts, so a partial miss still resurfaces like a miss.
+
+Weak spots then reports **which parts** keep going wrong, not just which
+questions.
+
+Answers are split into parts **upstream, in Python**, never in the app — see
+the load-bearing note below. 1,137 of the 1,139 multi-part answers split; the
+rest are marked whole, as is any question whose answer is genuinely
+cross-cutting ("a), c) and e) are polyhedra").
 
 Progress is kept in `localStorage` under `mathsqb.v1`, **on that device only**.
 Nothing is uploaded and nothing is shared between devices or browsers. "Clear all
@@ -89,6 +111,10 @@ one owns the data.
 **Notation is rendered in Python, never in JavaScript.** The upstream exporter
 pushes every question through one hardened `render_math`, and the app only ever
 inserts already-rendered HTML — it never parses fraction macros or escapes tags.
+Splitting a multi-part answer into per-part rows happens there too, gated by tag
+balance and a visible-character round trip, because a split that silently
+attaches one part's answer to another would show up only as a student marking
+themselves wrong on something they had right.
 That renderer is gated by its own checker and has survived several rounds of
 silent-corruption bugs; a JavaScript reimplementation would mean a fresh
 generation of them. If you extend this app, keep that boundary.
